@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lab 7 </title>
-  <!-- React -->
   <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -14,7 +13,6 @@
 <div id="root"></div>
 
 <script type="text/babel">
-  // Header Component
   function Header() {
     return (
       <header>
@@ -23,31 +21,34 @@
     );
   }
 
-  function Pokemon(props) {
-            const [pokemones, setPokemones] = React.useState([])
+  function DogBlogPosts(props) {
+            const [blogText, setBlogText] = React.useState([])
 
-            async function pokeApi() {
-                let listado = await fetch('https://pokeapi.co/api/v2/pokemon?limit=10&offset=0')
-                let listado_json = await listado.json()
+            async function dogblogApi() {
+                let blogPost = await fetch('http://127.0.0.1:19566/posts')
+                let blogPost_json = await blogPost.json()
 
-                setPokemones(listado_json.results)
+                setBlogText(blogPost_json)
             }
 
             React.useEffect(() => {
-                pokeApi()
+                dogblogApi()
             }, [])
 
             return (
-                <div>
-                    <h1>Dog Blog Posts</h1>
-                    <ul>
-                        {pokemones.map((p, index) => {
-                            return <li key={index} style={{ fontSize: '20px' }}>
-                                {p.name}
-                            </li>
-                        })}
-                    </ul>
-                </div>
+              <div>
+                  <h1>Dog Blog Posts</h1>
+                  <ul>
+                      {blogText.map((p, index) => {
+                          return (
+                              <li key={index} style={{ fontSize: '20px' }}>
+                                  <p>{p.title}</p>
+                                  <p>{p.content}</p>
+                              </li>
+                          );
+                      })}
+                  </ul>
+              </div>
             )
         }
 
@@ -55,7 +56,7 @@
   function Footer() {
     return (
       <footer>
-        <p>&copy; 19566 Dina Rodriguez</p>
+        <p>19566 Dina Rodriguez</p>
       </footer>
     );
   }
@@ -67,7 +68,7 @@
         <Header />
         <main>
           <h2>Lab 7: React</h2>
-          <Pokemon />
+          <DogBlogPosts />
           <p>Local </p>
         </main>
         <Footer />
