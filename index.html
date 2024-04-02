@@ -3,9 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lab 7 </title>
-  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <title>Lab 7</title>
+  <link rel="stylesheet" href="index.css">
+  <script src="https://unpkg.com/react@17/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
 <body>
@@ -16,43 +17,55 @@
   function Header() {
     return (
       <header>
-        <h1>UVG - Lab 7</h1>
+        <h1 className="blog-title">UVG - Laboratorio 7</h1>
+        <h2 className="blog-title">React</h2>
       </header>
     );
   }
 
   function DogBlogPosts(props) {
-            const [blogText, setBlogText] = React.useState([])
+    const [blogText, setBlogText] = React.useState([]);
 
-            async function dogblogApi() {
-                let blogPost = await fetch('http://127.0.0.1:19566/posts')
-                let blogPost_json = await blogPost.json()
-
-                setBlogText(blogPost_json)
-            }
-
-            React.useEffect(() => {
-                dogblogApi()
-            }, [])
-
-            return (
-              <div>
-                  <h1>Dog Blog Posts</h1>
-                  <ul>
-                      {blogText.map((p, index) => {
-                          return (
-                              <li key={index} style={{ fontSize: '20px' }}>
-                                  <p>{p.title}</p>
-                                  <p>{p.content}</p>
-                              </li>
-                          );
-                      })}
-                  </ul>
-              </div>
-            )
+    async function dogBlogApi() {
+      try {
+        const blogPost = await fetch('http://127.0.0.1:19566/posts');
+        if (!blogPost.ok) {
+          throw new Error('Failed to fetch data');
         }
+        const blogPost_json = await blogPost.json();
+        setBlogText(blogPost_json);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        // Handle error or set default state accordingly
+      }
+    }
 
-  // Componente footer
+    React.useEffect(() => {
+      dogBlogApi();
+    }, []); 
+
+    return (
+      <div>
+        <ul>
+          {blogText.map((post) => (
+            <li key={post.id} className="post-item">
+              {post.image && ( 
+              <div className="post-image">
+                <img src={post.image} alt="Blog Post Image" />
+              </div>
+              )}
+              <div className="post-details">
+                <div className="post-title">{post.title}</div>
+                <div className="post-content">{post.content}</div>
+                <div className="post-time"> Post created at: {post.created_at} by: {post.username}</div>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  }
+
   function Footer() {
     return (
       <footer>
@@ -61,22 +74,20 @@
     );
   }
 
-  // Main Function
   function App() {
     return (
       <div>
         <Header />
         <main>
-          <h2>Lab 7: React</h2>
+          <h2 className="section-title">Dog Blog Posts</h2>
           <DogBlogPosts />
-          <p>Local </p>
+          <div>Local </div>
         </main>
         <Footer />
       </div>
     );
   }
 
-  // Render App component with Id root
   ReactDOM.render(<App />, document.getElementById('root'));
 </script>
 
