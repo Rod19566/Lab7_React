@@ -14,6 +14,7 @@
 <div id="root"></div>
 
 <script type="text/babel">
+
   function Header() {
     return (
       <header>
@@ -23,66 +24,74 @@
     );
   }
 
-  function DogBlogPosts(props) {
-    const [blogText, setBlogText] = React.useState([]);
+  function Footer() {
+  return (
+    <footer>
+      <p>19566 Dina Rodriguez</p>
+    </footer>
+  );
+}
 
-    async function dogBlogApi() {
-      try {
-        const blogPost = await fetch('http://127.0.0.1:19566/posts');
-        if (!blogPost.ok) {
-          throw new Error('Failed to fetch data');
-        }
-        const blogPost_json = await blogPost.json();
-        setBlogText(blogPost_json);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-        // Handle error or set default state accordingly
-      }
+function DogBlogPosts() {
+  const [blogText, setBlogText] = React.useState([]);
+  const [loading, setLoading] = React.useState(true);
+
+  async function dogBlogApi() {
+    const blogPost = await fetch('http://127.0.0.1:19566/posts');
+    if (!blogPost.ok) {
+      throw new Error('Failed to fetch data');
     }
+    const blogPost_json = await blogPost.json();
+    setBlogText(blogPost_json);
+    setLoading(false); // Set loading to false once data is fetched
+  }
 
-    React.useEffect(() => {
-      dogBlogApi();
-    }, []); 
+  React.useEffect(() => {
+    dogBlogApi();
+  }, []);
 
-    return (
-      <div>
-        <ul>
-          {blogText.map((post) => (
-            <li key={post.id} className="post-item">
-              {post.image && ( 
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (blogText.length === 0) {
+    return <div>No posts available</div>;
+  }
+
+  return (
+    <div>
+      <ul>
+        {blogText.map((post) => (
+          <li key={post.id} className="post-item" style={{marginBottom:'1vh'}}>
+            {post.image && ( 
               <div className="post-image">
                 <img src={post.image} alt="Blog Post Image" />
               </div>
-              )}
-              <div className="post-details">
-                <div className="post-title">{post.title}</div>
-                <div className="post-content">{post.content}</div>
-                <div className="post-time"> Post created at: {post.created_at} by: {post.username}</div>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </div>
-    );
-  }
-
-  function Footer() {
-    return (
-      <footer>
-        <p>19566 Dina Rodriguez</p>
-      </footer>
-    );
-  }
+            )}
+            <div className="post-details">
+              <div className="post-title">{post.title}</div>
+              <div className="post-content">{post.content}</div>
+              <div className="post-time"> Post created at: {post.created_at} by: {post.username}</div>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
 
   function App() {
     return (
       <div>
         <Header />
+        
         <main>
           <h2 className="section-title">Dog Blog Posts</h2>
-          <DogBlogPosts />
-          <div>Local </div>
+          <React.Suspense fallback={<div>Loading...</div>}>
+            <DogBlogPosts />
+          </React.Suspense>
         </main>
+          <div>Local </div>
         <Footer />
       </div>
     );
