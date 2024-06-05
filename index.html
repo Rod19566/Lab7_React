@@ -10,40 +10,42 @@
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
 <body>
+  <div id="root"></div>
+  <script type="text/babel">
+    function Header() {
+      return (
+        <header>
+          <h1 className="blog-title">UVG - Laboratorio 7</h1>
+          <h2 className="blog-subtitle">React</h2>
+        </header>
+      );
+    }
 
-<div id="root"></div>
+    function Footer() {
+      return (
+        <footer>
+          <p>19566 Dina Rodriguez</p>
+        </footer>
+      );
+    }
 
-<script type="text/babel">
-
-  function Header() {
-    return (
-      <header>
-        <h1 className="blog-title">UVG - Laboratorio 7</h1>
-        <h2 className="blog-title">React</h2>
-      </header>
-    );
-  }
-
-  function Footer() {
-  return (
-    <footer>
-      <p>19566 Dina Rodriguez</p>
-    </footer>
-  );
-}
-
-function DogBlogPosts() {
+  function DogBlogPosts() {
   const [blogText, setBlogText] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
 
   async function dogBlogApi() {
-    const blogPost = await fetch('http://127.0.0.1:19566/posts');
-    if (!blogPost.ok) {
-      throw new Error('Failed to fetch data');
+    try {
+      const blogPost = await fetch('http://127.0.0.1:19566/posts');
+      if (!blogPost.ok) {
+        throw new Error('Failed to fetch data');
+      }
+      const blogPost_json = await blogPost.json();
+      setBlogText(blogPost_json);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
     }
-    const blogPost_json = await blogPost.json();
-    setBlogText(blogPost_json);
-    setLoading(false); // Set loading to false once data is fetched
   }
 
   React.useEffect(() => {
@@ -55,23 +57,35 @@ function DogBlogPosts() {
   }
 
   if (blogText.length === 0) {
-    return <div>No posts available</div>;
+    return (
+      <div className="dog-blog-posts">
+        <ul>
+          <li className="post-item">
+            <div className="post-details">
+              <div className="post-title">Example Post</div>
+              <div className="post-content">I have a cat who just loves my doberman!</div>
+              <div className="post-time">Post created at: {new Date().toLocaleString()}</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    );
   }
 
   return (
-    <div>
+    <div className="dog-blog-posts">
       <ul>
         {blogText.map((post) => (
-          <li key={post.id} className="post-item" style={{marginBottom:'1vh'}}>
-            {post.image && ( 
+          <li key={post.id} className="post-item">
+            {post.image && (
               <div className="post-image">
-                <img src={post.image} alt="Blog Post Image" />
+                <img src={`data:image/png;base64,${post.image}`} alt="Blog Post" />
               </div>
             )}
             <div className="post-details">
               <div className="post-title">{post.title}</div>
               <div className="post-content">{post.content}</div>
-              <div className="post-time"> Post created at: {post.created_at} by: {post.username}</div>
+              <div className="post-time">Post created at: {post.created_at} by: {post.username}</div>
             </div>
           </li>
         ))}
@@ -80,25 +94,23 @@ function DogBlogPosts() {
   );
 }
 
-  function App() {
-    return (
-      <div>
-        <Header />
-        
-        <main>
-          <h2 className="section-title">Dog Blog Posts</h2>
-          <React.Suspense fallback={<div>Loading...</div>}>
-            <DogBlogPosts />
-          </React.Suspense>
-        </main>
-          <div>Local </div>
-        <Footer />
-      </div>
-    );
-  }
 
-  ReactDOM.render(<App />, document.getElementById('root'));
-</script>
+    function App() {
+      return (
+        <div>
+          <Header />
+          <main>
+            <h2 className="section-title">Dog Blog Posts</h2>
+            <React.Suspense fallback={<div>Loading...</div>}>
+              <DogBlogPosts />
+            </React.Suspense>
+          </main>
+          <Footer />
+        </div>
+      );
+    }
 
+    ReactDOM.render(<App />, document.getElementById('root'));
+  </script>
 </body>
 </html>
